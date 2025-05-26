@@ -15,7 +15,7 @@ export const availablePlans: Plan[] = [
     currency: "USD",
     interval: "week",
     description:
-      "Great if you want to try the service before committing longer.",
+      "Great for testing the power of AI-driven meal planning with short-term flexibility.",
     features: [
       "Unlimited AI meal plans",
       "AI Nutrition Insights",
@@ -29,7 +29,7 @@ export const availablePlans: Plan[] = [
     interval: "month",
     isPopular: true,
     description:
-      "Perfect for ongoing, month-to-month meal planning and features.",
+      "Perfect for ongoing optimization with monthly access to intelligent nutrition coaching and AI customization.",
     features: [
       "Unlimited AI meal plans",
       "AI Nutrition Insights",
@@ -43,7 +43,7 @@ export const availablePlans: Plan[] = [
     currency: "USD",
     interval: "year",
     description:
-      "Best Value for those committed to improving their diet long-term",
+      "Best Value: a full year of premium AI guidance, habit building, and health transformation.",
     features: [
       "Unlimited AI meal plans",
       "AI Nutrition Insights",
@@ -52,3 +52,11 @@ export const availablePlans: Plan[] = [
     ],
   },
 ];
+
+const priceIDMap: Record<string, string> = {
+  week: process.env.STRIPE_PRICE_WEEKLY!,
+  month: process.env.STRIPE_PRICE_MONTHLY!,
+  year: process.env.STRIPE_PRICE_YEARLY!,
+};
+
+export const getPriceIdFromType = (planType: string) => priceIDMap[planType];

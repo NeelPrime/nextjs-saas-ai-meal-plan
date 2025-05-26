@@ -1,8 +1,81 @@
+"use client";
+
 import { availablePlans } from "@/lib/plan";
+import { useUser } from "@clerk/nextjs";
+import { useMutation } from "@tanstack/react-query";
+import { useRouter } from "next/navigation";
+import toast, { Toaster } from "react-hot-toast";
+type SubscribeResponse = {
+  url: string;
+};
+
+type SubscribeError = {
+  error: string;
+};
+
+async function subscribeToPlan(
+  planType: string,
+  userId: string,
+  email: string
+): Promise<SubscribeResponse> {
+  const resp = await fetch("/api/checkout", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      planType,
+      userId,
+      email,
+    }),
+  });
+  if (!resp.ok) {
+    const errorData: SubscribeError = await resp.json();
+    throw new Error(errorData.error || "Something went wrong");
+  }
+
+  const data: SubscribeResponse = await resp.json();
+  return data;
+}
 
 export default function Subscribe() {
+  const { user } = useUser();
+  const router = useRouter();
+  const userId = user?.id;
+  const email = user?.emailAddresses[0].emailAddress || "";
+  const { mutate, isPending } = useMutation<
+    SubscribeResponse,
+    Error,
+    { planType: string }
+  >({
+    mutationFn: async ({ planType }) => {
+      if (!userId) {
+        throw new Error("USer not signed in");
+      }
+      return subscribeToPlan(planType, userId, email);
+    },
+    onMutate: () => {
+      toast.loading("Processing your subscription...");
+    },
+    onSuccess: (data) => {
+      window.location.href = data.url;
+    },
+    onError: () => {
+      toast.error("Something went wrong", {});
+    },
+  });
+
+  function handlerSubscribe(planType: string) {
+    if (!userId) {
+      router.push("/sign-in");
+      return;
+    }
+    mutate({ planType });
+  }
+
   return (
     <div className="px-4 py-8 sm:py-12 lg:py-16">
+      <Toaster position="top-right" />
       {/* Section Header */}
       <div>
         <h2 className="text-3xl font-bold text-center mt-12 sm:text-5xl tracking-tight">
@@ -69,8 +142,10 @@ export default function Subscribe() {
 
             <button
               className={`bg-emerald-500 text-white  hover:bg-emerald-600  mt-8 block w-full py-3 px-6 border border-transparent rounded-md text-center font-medium disabled:bg-gray-400 disabled:cursor-not-allowed`}
+              onClick={() => handlerSubscribe(plan.interval)}
+              disabled={isPending}
             >
-              {`Subscribe ${plan.name}`}
+              {isPending ? "Please wait..." : `Subscribe ${plan.name}`}
             </button>
           </div>
         ))}
