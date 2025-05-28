@@ -35,6 +35,15 @@ export default function MealPlanDashboard() {
 
     mutate(payload);
   };
+  const daysOfTheWeek = [
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+    "Sunday",
+  ];
 
   const getMealPlanForDay = (day: string): DailyMealPlan | undefined => {
     if (!data?.mealPlan) return undefined;

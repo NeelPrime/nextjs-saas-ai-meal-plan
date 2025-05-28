@@ -23,12 +23,3 @@ export interface MealPlanResponse {
   error?: string;
 }
 
-export const daysOfTheWeek = [
-  "Monday",
-  "Tuesday",
-  "Wednesday",
-  "Thursday",
-  "Friday",
-  "Saturday",
-  "Sunday",
-];
