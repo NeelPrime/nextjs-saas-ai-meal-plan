@@ -1,42 +1,12 @@
 "use client";
 
 import { availablePlans } from "@/lib/plan";
+import { subscribeToPlan } from "@/services/subscriptions";
+import { SubscribeResponse } from "@/types/subscriptions";
 import { useUser } from "@clerk/nextjs";
 import { useMutation } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
-type SubscribeResponse = {
-  url: string;
-};
-
-type SubscribeError = {
-  error: string;
-};
-
-async function subscribeToPlan(
-  planType: string,
-  userId: string,
-  email: string
-): Promise<SubscribeResponse> {
-  const resp = await fetch("/api/checkout", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      planType,
-      userId,
-      email,
-    }),
-  });
-  if (!resp.ok) {
-    const errorData: SubscribeError = await resp.json();
-    throw new Error(errorData.error || "Something went wrong");
-  }
-
-  const data: SubscribeResponse = await resp.json();
-  return data;
-}
 
 export default function Subscribe() {
   const { user } = useUser();
@@ -103,7 +73,7 @@ export default function Subscribe() {
             <div className="flex-1">
               {/* Conditionally render "Most popular" label */}
               {plan.isPopular && (
-                <p className="absolute top-0 py-1.5 px-4 bg-emerald-500 text-white rounded-full text-xs font-semibold uppercase tracking-wide transform -translate-y-1/2">
+                <p className="absolute top-0 py-1.5 px-4 bg-cyan-500 text-white rounded-full text-xs font-semibold uppercase tracking-wide transform -translate-y-1/2">
                   Most popular
                 </p>
               )}
@@ -130,7 +100,7 @@ export default function Subscribe() {
                       strokeWidth="2"
                       strokeLinecap="round"
                       strokeLinejoin="round"
-                      className="flex-shrink-0 w-6 h-6 text-emerald-500"
+                      className="flex-shrink-0 w-6 h-6 text-cyan-500"
                     >
                       <polyline points="20 6 9 17 4 12" />
                     </svg>
@@ -141,7 +111,7 @@ export default function Subscribe() {
             </div>
 
             <button
-              className={`bg-emerald-500 text-white  hover:bg-emerald-600  mt-8 block w-full py-3 px-6 border border-transparent rounded-md text-center font-medium disabled:bg-gray-400 disabled:cursor-not-allowed`}
+              className={`bg-cyan-500 text-white  hover:bg-cyan-600  mt-8 block w-full py-3 px-6 border border-transparent rounded-md text-center font-medium disabled:bg-gray-400 disabled:cursor-not-allowed`}
               onClick={() => handlerSubscribe(plan.interval)}
               disabled={isPending}
             >

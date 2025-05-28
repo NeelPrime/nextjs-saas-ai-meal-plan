@@ -1,43 +1,15 @@
 "use client";
 
 import Spinner from "@/components/spinner";
+import { generateMealPlan } from "@/services/mealplan";
+import {
+  MealPlanInput,
+  MealPlanResponse,
+  DailyMealPlan,
+  daysOfTheWeek,
+} from "@/types/mealplan";
 import { useMutation } from "@tanstack/react-query";
-import { headers } from "next/headers";
 import React from "react";
-
-interface MealPlanInput {
-  dietType: string;
-  calories: number;
-  allergies: string;
-  cuisine: string;
-  snacks: string;
-  days?: number;
-}
-
-interface DailyMealPlan {
-  Breakfast?: string;
-  Lunch?: string;
-  Dinner?: string;
-  Snacks?: string;
-}
-
-interface WeeklyMealPlan {
-  [day: string]: DailyMealPlan;
-}
-
-interface MealPlanResponse {
-  mealPlan?: WeeklyMealPlan;
-  error?: string;
-}
-
-async function generateMealPlan(payload: MealPlanInput) {
-  const response = await fetch("/api/generate-mealplan", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(payload),
-  });
-  return response.json();
-}
 
 export default function MealPlanDashboard() {
   const { mutate, isPending, isSuccess, data } = useMutation<
@@ -64,16 +36,6 @@ export default function MealPlanDashboard() {
     mutate(payload);
   };
 
-  const daysOfTheWeek = [
-    "Monday",
-    "Tuesday",
-    "Wednesday",
-    "Thursday",
-    "Friday",
-    "Saturday",
-    "Sunday",
-  ];
-
   const getMealPlanForDay = (day: string): DailyMealPlan | undefined => {
     if (!data?.mealPlan) return undefined;
     return data?.mealPlan[day];
@@ -83,7 +45,7 @@ export default function MealPlanDashboard() {
     <div className="min-h-screen flex items-center justify-center  p-4">
       <div className="w-full max-w-6xl flex flex-col md:flex-row bg-white shadow-lg rounded-lg overflow-hidden">
         {/* Left Panel: Form */}
-        <div className="w-full md:w-1/3 lg:w-1/4 p-6 bg-emerald-500 text-white">
+        <div className="w-full md:w-1/3 lg:w-1/4 p-6 bg-cyan-500 text-white">
           <h1 className="text-2xl font-bold mb-6 text-center">
             AI Meal Plan Generator
           </h1>
@@ -101,7 +63,7 @@ export default function MealPlanDashboard() {
                 id="dietType"
                 name="dietType"
                 required
-                className="w-full px-3 py-2 border border-emerald-300 rounded-md text-black focus:outline-none bg-white focus:bg-white placeholder:text-gray-400 focus:ring-2 focus:ring-emerald-400"
+                className="w-full px-3 py-2 border border-cyan-300 rounded-md text-black focus:outline-none bg-white focus:bg-white placeholder:text-gray-400 focus:ring-2 focus:ring-cyan-400"
                 placeholder="e.g., Vegetarian, Keto, Mediterranean"
               />
             </div>
@@ -121,7 +83,7 @@ export default function MealPlanDashboard() {
                 required
                 min={500}
                 max={15000}
-                className="w-full px-3 py-2 border border-emerald-300 rounded-md text-black focus:outline-none bg-white focus:bg-white placeholder:text-gray-400  focus:ring-2 focus:ring-emerald-400"
+                className="w-full px-3 py-2 border border-cyan-300 rounded-md text-black focus:outline-none bg-white focus:bg-white placeholder:text-gray-400  focus:ring-2 focus:ring-cyan-400"
                 placeholder="e.g., 2000"
               />
             </div>
@@ -138,7 +100,7 @@ export default function MealPlanDashboard() {
                 type="text"
                 id="allergies"
                 name="allergies"
-                className="w-full px-3 py-2 border border-emerald-300 rounded-md text-black bg-white focus:bg-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-emerald-400"
+                className="w-full px-3 py-2 border border-cyan-300 rounded-md text-black bg-white focus:bg-white placeholder:text-gray-400 focus:outline-none focus:ring-2 focus:ring-cyan-400"
                 placeholder="e.g., Nuts, Dairy, None"
               />
             </div>
@@ -155,7 +117,7 @@ export default function MealPlanDashboard() {
                 type="text"
                 id="cuisine"
                 name="cuisine"
-                className="w-full px-3 py-2 border border-emerald-300 rounded-md text-black focus:outline-none focus:ring-2 bg-white focus:bg-white placeholder:text-gray-400  focus:ring-emerald-400"
+                className="w-full px-3 py-2 border border-cyan-300 rounded-md text-black focus:outline-none focus:ring-2 bg-white focus:bg-white placeholder:text-gray-400  focus:ring-cyan-400"
                 placeholder="e.g., Italian, Chinese, No Preference"
               />
             </div>
@@ -166,7 +128,7 @@ export default function MealPlanDashboard() {
                 type="checkbox"
                 id="snacks"
                 name="snacks"
-                className="h-4 w-4 text-emerald-300 border-emerald-300 rounded"
+                className="h-4 w-4 text-cyan-300 border-cyan-300 rounded"
               />
               <label htmlFor="snacks" className="ml-2 block text-sm text-white">
                 Include Snacks
@@ -178,7 +140,7 @@ export default function MealPlanDashboard() {
               <button
                 type="submit"
                 disabled={isPending}
-                className={`w-full bg-emerald-500 text-white py-3 px-4 rounded-lg hover:bg-emerald-600 transition-colors shadow-md border-2 border-emerald-400 font-medium disabled:bg-gray-400 disabled:cursor-not-allowed  disabled:hover:bg-gray-400 disabled:border-gray-300 ${
+                className={`w-full bg-cyan-500 text-white py-3 px-4 rounded-lg hover:bg-cyan-600 transition-colors shadow-md border-2 border-cyan-400 font-medium disabled:bg-gray-400 disabled:cursor-not-allowed  disabled:hover:bg-gray-400 disabled:border-gray-300 ${
                   isPending ? "opacity-50 cursor-not-allowed" : ""
                 }`}
               >
@@ -189,7 +151,7 @@ export default function MealPlanDashboard() {
         </div>
 
         <div className="w-full md:w-2/3 lg:w-3/4 p-6 bg-gray-50">
-          <h2 className="text-2xl font-bold mb-6 text-emerald-700">
+          <h2 className="text-2xl font-bold mb-6 text-cyan-700">
             Weekly Meal Plan
           </h2>
 
@@ -201,9 +163,9 @@ export default function MealPlanDashboard() {
                   return (
                     <div
                       key={day}
-                      className="bg-white shadow-md rounded-lg p-4 border border-emerald-200"
+                      className="bg-white shadow-md rounded-lg p-4 border border-cyan-200"
                     >
-                      <h3 className="text-xl font-semibold mb-2 text-emerald-600">
+                      <h3 className="text-xl font-semibold mb-2 text-cyan-600">
                         {day}
                       </h3>
                       {mealPlan ? (

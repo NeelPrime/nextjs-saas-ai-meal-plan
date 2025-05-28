@@ -14,7 +14,7 @@ export default function NavBar() {
         {/* Brand / Logo */}
         <Link href="/">
           <Image
-            className="text-xl font-bold text-emerald-700 cursor-pointer"
+            className="text-xl font-bold text-cyan-700 cursor-pointer"
             src="/logo.png" // Ensure this path is correct or replace with your logo path
             width={60}
             height={60}
@@ -28,7 +28,7 @@ export default function NavBar() {
           <SignedIn>
             <Link
               href="/mealplan"
-              className="text-gray-700 hover:text-emerald-500 transition-colors"
+              className="text-gray-700 hover:text-cyan-500 transition-colors"
             >
               Mealplan
             </Link>
@@ -50,7 +50,7 @@ export default function NavBar() {
 
             {/* Sign Out Button */}
             <SignOutButton>
-              <button className="ml-4 px-4 py-2 bg-emerald-500 text-white rounded hover:bg-emerald-600 transition">
+              <button className="ml-4 px-4 py-2 bg-cyan-500 text-white rounded hover:bg-cyan-600 transition">
                 Sign Out
               </button>
             </SignOutButton>
@@ -59,20 +59,20 @@ export default function NavBar() {
           <SignedOut>
             <Link
               href="/"
-              className="text-gray-700 hover:text-emerald-500 transition-colors"
+              className="text-gray-700 hover:text-cyan-500 transition-colors"
             >
               Home
             </Link>
             <Link
               href={isSignedIn ? "/subscribe" : "/sign-up"}
-              className="text-gray-700 hover:text-emerald-500 transition-colors"
+              className="text-gray-700 hover:text-cyan-500 transition-colors"
             >
               Subscribe
             </Link>
 
             <Link
               href="/sign-up"
-              className="px-4 py-2 bg-emerald-500 text-white rounded hover:bg-emerald-600 transition"
+              className="px-4 py-2 bg-cyan-500 text-white rounded hover:bg-cyan-600 transition"
             >
               Sign Up
             </Link>

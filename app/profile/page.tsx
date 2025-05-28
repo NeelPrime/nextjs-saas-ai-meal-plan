@@ -1,11 +1,92 @@
 "use client";
 import Spinner from "@/components/spinner";
+import {
+  fetchSubscriptionsStatus,
+  unsubscribe,
+  updatePlan,
+} from "@/services/subscriptions";
+import { availablePlans } from "@/lib/plan";
 import { useUser } from "@clerk/nextjs";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import Image from "next/image";
-import { Toaster } from "react-hot-toast";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import toast, { Toaster } from "react-hot-toast";
 
 export default function Profile() {
+  const [selectedPlan, setSelectedPlan] = useState("");
   const { isLoaded, isSignedIn, user } = useUser();
+  const queryClient = useQueryClient();
+  const router = useRouter();
+
+  const {
+    data: subscription,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["subscription"],
+    queryFn: fetchSubscriptionsStatus,
+    enabled: isLoaded && isSignedIn,
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const {
+    data: updatedPlan,
+    mutate: updatePlanMutation,
+    isPending: isUpdatePlanPending,
+  } = useMutation({
+    mutationFn: updatePlan,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["subscription"] });
+      toast.success("Subscription plan updated successfully.");
+    },
+    onError: () => {
+      toast.error("Error occurred while updating plan");
+    },
+  });
+  const currentPlan = availablePlans.find(
+    (plan) => plan.interval === subscription?.subscription?.subscriptionTier
+  );
+
+  const {
+    data: canceledPlan,
+    mutate: unsubscribeMutation,
+    isPending: isUnsubscribePending,
+  } = useMutation({
+    mutationFn: unsubscribe,
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["subscription"] });
+      router.push("/subscribe");
+    },
+    onError: () => {
+      toast.error("Unable to unsubscribe");
+    },
+  });
+
+  const handleChangePlan = (event: React.ChangeEvent<HTMLSelectElement>) => {
+    const newPlan = event.target.value;
+    if (newPlan) {
+      setSelectedPlan(newPlan);
+    }
+  };
+
+  const handleUpdatePlan = () => {
+    if (selectedPlan) {
+      updatePlanMutation(selectedPlan);
+    }
+    setSelectedPlan("");
+  };
+
+  const handleUnsubscribe = () => {
+    if (
+      confirm(
+        "Are you sure you want to unsubscribe? You will lose access to premium features."
+      )
+    ) {
+      unsubscribeMutation();
+    }
+  };
 
   if (!isLoaded) {
     return (
@@ -23,12 +104,11 @@ export default function Profile() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-emerald-100 p-4">
-      <Toaster position="top-center" />{" "}
-      {/* Optional: For toast notifications */}
+    <div className="min-h-screen flex items-center justify-center bg-cyan-100 p-4">
+      <Toaster position="top-center" />
       <div className="w-full max-w-5xl bg-white shadow-lg rounded-lg overflow-hidden">
         <div className="flex flex-col md:flex-row">
-          <div className="w-full md:w-1/3 p-6 bg-emerald-500 text-white flex flex-col items-center">
+          <div className="w-full md:w-1/3 p-6 bg-cyan-500 text-white flex flex-col items-center">
             <Image
               src={user.imageUrl || "/default-avatar.png"}
               alt="User Avatar"
@@ -41,11 +121,99 @@ export default function Profile() {
             </h1>
             <p className="mb-4">{user.primaryEmailAddress?.emailAddress}</p>
           </div>
-        </div>
-        <div className="w-full md:w-2/3 p-6 bg-gray-50">
-          <h2 className="text-2xl font-bold mb-6 text-emerald-700">
-            Profile Page{" "}
-          </h2>
+          <div className="w-full md:w-2/3 p-6 bg-gray-50">
+            <h2 className="text-2xl font-bold mb-6 text-cyan-700">
+              Subscription Details
+            </h2>
+
+            {isLoading ? (
+              <div className="flex items-center">
+                <Spinner />
+                <span className="ml-2">Loading subscription details...</span>
+              </div>
+            ) : isError ? (
+              <p className="text-red-500">{error?.message}</p>
+            ) : subscription ? (
+              <div className="space-y-6">
+                <div className="bg-white shadow-md rounded-lg p-4 border border-cyan-200">
+                  <h3 className="text-xl font-semibold mb-2 text-cyan-600">
+                    Current Plan
+                  </h3>
+                  {currentPlan ? (
+                    <>
+                      <p>
+                        <strong>Plan:</strong> {currentPlan.name}
+                      </p>
+                      <p>
+                        <strong>Amount:</strong> ${currentPlan.amount}{" "}
+                        {currentPlan.currency}
+                      </p>
+                      <p>
+                        <strong>Status:</strong>{" "}
+                        {subscription.subscription.subscriptionActive
+                          ? "ACTIVE"
+                          : "INACTIVE"}
+                      </p>
+                    </>
+                  ) : (
+                    <p className="text-red-500">Current plan not found.</p>
+                  )}
+                </div>
+
+                <div className="bg-white shadow-md rounded-lg p-4 border border-cyan-200">
+                  <h3 className="text-xl font-semibold mb-2 text-cyan-600">
+                    Change Subscription Plan
+                  </h3>
+                  <select
+                    onChange={handleChangePlan}
+                    defaultValue={currentPlan?.interval}
+                    className="w-full px-3 py-2 border border-cyan-300 rounded-md text-black focus:outline-none focus:ring-2 focus:ring-cyan-400"
+                    disabled={isUpdatePlanPending}
+                  >
+                    <option value="" disabled>
+                      Select a new plan
+                    </option>
+                    {availablePlans.map((plan, key) => (
+                      <option key={key} value={plan.interval}>
+                        {plan.name} - ${plan.amount} / {plan.interval}
+                      </option>
+                    ))}
+                  </select>
+                  <button
+                    onClick={handleUpdatePlan}
+                    className="mt-3 p-2 bg-cyan-500 rounded-lg text-white"
+                  >
+                    Save Change
+                  </button>
+                  {isUpdatePlanPending && (
+                    <div className="flex items-center mt-2">
+                      <Spinner />
+                      <span className="ml-2">Updating plan...</span>
+                    </div>
+                  )}
+                </div>
+
+                <div className="bg-white shadow-md rounded-lg p-4 border border-cyan-200">
+                  <h3 className="text-xl font-semibold mb-2 text-cyan-600">
+                    Unsubscribe
+                  </h3>
+                  <button
+                    onClick={handleUnsubscribe}
+                    disabled={isUnsubscribePending}
+                    className={`w-full bg-red-500 text-white py-2 px-4 rounded-md hover:bg-red-600 transition-colors ${
+                      isUnsubscribePending
+                        ? "opacity-50 cursor-not-allowed"
+                        : ""
+                    }`}
+                  >
+                    {isUnsubscribePending ? "Unsubscribing..." : "Unsubscribe"}
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <p>You are not subscribed to any plan.</p>
+            )}
+          </div>
         </div>
       </div>
     </div>
