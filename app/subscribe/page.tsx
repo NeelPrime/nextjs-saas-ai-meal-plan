@@ -1,18 +1,37 @@
 "use client";
 
 import { availablePlans } from "@/lib/plan";
-import { subscribeToPlan } from "@/services/subscriptions";
+import {
+  fetchSubscriptionsStatus,
+  subscribeToPlan,
+} from "@/services/subscriptions";
 import { SubscribeResponse } from "@/types/subscriptions";
 import { useUser } from "@clerk/nextjs";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
 import toast, { Toaster } from "react-hot-toast";
 
 export default function Subscribe() {
-  const { user } = useUser();
+  const { isLoaded, isSignedIn, user } = useUser();
   const router = useRouter();
   const userId = user?.id;
   const email = user?.emailAddresses[0].emailAddress || "";
+
+  const {
+    data: subscription,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["subscription"],
+    queryFn: fetchSubscriptionsStatus,
+    enabled: isLoaded && isSignedIn,
+    staleTime: 5 * 60 * 1000,
+  });
+  const currentPlan = availablePlans.find(
+    (plan) => plan.interval === subscription?.subscription?.subscriptionTier
+  );
+
   const { mutate, isPending } = useMutation<
     SubscribeResponse,
     Error,
@@ -113,9 +132,9 @@ export default function Subscribe() {
             <button
               className={`bg-cyan-500 text-white  hover:bg-cyan-600  mt-8 block w-full py-3 px-6 border border-transparent rounded-md text-center font-medium disabled:bg-gray-400 disabled:cursor-not-allowed`}
               onClick={() => handlerSubscribe(plan.interval)}
-              disabled={isPending}
+              disabled={isPending || currentPlan?.interval === plan.interval}
             >
-              {isPending ? "Please wait..." : `Subscribe ${plan.name}`}
+              {isPending  ? "Please wait..." : (currentPlan?.interval === plan.interval ? `Subscribed` :`Subscribe ${plan.name}`)}
             </button>
           </div>
         ))}
