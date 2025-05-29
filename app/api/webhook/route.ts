@@ -25,14 +25,17 @@ export async function POST(request: NextRequest) {
       case "checkout.session.completed": {
         const session = event.data.object as Stripe.Checkout.Session;
         await handleCheckoutSessionCompleted(session);
+        break;
       }
       case "invoice.payment_failed": {
-        const session = event.data.object as Stripe.Invoice;
-        await handleInvoicePaymentFailed(session);
+        const invoice = event.data.object as Stripe.Invoice;
+        await handleInvoicePaymentFailed(invoice);
+        break;
       }
       case "customer.subscription.deleted": {
         const session = event.data.object as Stripe.Subscription;
         await handleCustomerSubscriptionDeleted(session);
+        break;
       }
       default: {
         console.log("unhandled event type" + event.type);
@@ -71,7 +74,7 @@ async function handleCheckoutSessionCompleted(
   }
 }
 const handleInvoicePaymentFailed = async (invoice: Stripe.Invoice) => {
-  const subId = invoice.subscription as string;
+  const subId = invoice.id as string;
 
   if (!subId) {
     return;
