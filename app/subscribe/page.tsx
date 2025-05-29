@@ -17,12 +17,7 @@ export default function Subscribe() {
   const userId = user?.id;
   const email = user?.emailAddresses[0].emailAddress || "";
 
-  const {
-    data: subscription,
-    isLoading,
-    isError,
-    error,
-  } = useQuery({
+  const { data: subscription } = useQuery({
     queryKey: ["subscription"],
     queryFn: fetchSubscriptionsStatus,
     enabled: isLoaded && isSignedIn,
@@ -134,7 +129,11 @@ export default function Subscribe() {
               onClick={() => handlerSubscribe(plan.interval)}
               disabled={isPending || currentPlan?.interval === plan.interval}
             >
-              {isPending  ? "Please wait..." : (currentPlan?.interval === plan.interval ? `Subscribed` :`Subscribe ${plan.name}`)}
+              {isPending
+                ? "Please wait..."
+                : currentPlan?.interval === plan.interval
+                ? `Subscribed`
+                : `Subscribe ${plan.name}`}
             </button>
           </div>
         ))}

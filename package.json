@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "next lint",
     "prisma:generate": "prisma generate --schema=./packages/db/schema.prisma",
-    "sripe-listen": "stripe listen --forward-to localhost:3000/api/webhook"
+    "stripe-listen": "stripe listen --forward-to localhost:3000/api/webhook",
+    "lint:check": "next lint",
+    "lint:fix": "next lint --fix"
   },
   "dependencies": {
     "@clerk/nextjs": "^6.19.5",

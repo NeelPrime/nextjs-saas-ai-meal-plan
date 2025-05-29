@@ -1,10 +1,9 @@
-import { currentUser } from "@clerk/nextjs/server";
-import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { stripe } from "@/lib/stripe";
-import { getPriceIdFromType } from "@/lib/plan";
+import { currentUser } from "@clerk/nextjs/server";
+import { NextResponse } from "next/server";
 
-export async function POST(request: NextRequest) {
+export async function POST() {
   try {
     const clerkUser = await currentUser();
     if (!clerkUser?.id) {
@@ -41,6 +40,7 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ subscription: canceledSubscription });
   } catch (error: any) {
+    console.log(error.message);
     return NextResponse.json({ error: "Internal Error" }, { status: 500 });
   }
 }

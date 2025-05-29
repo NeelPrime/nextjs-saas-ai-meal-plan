@@ -2,7 +2,6 @@ import { getPriceIdFromType } from "@/lib/plan";
 import { NextRequest, NextResponse } from "next/server";
 import { stripe } from "@/lib/stripe";
 
-
 export async function POST(request: NextRequest) {
   try {
     const { planType, userId, email } = await request.json();
@@ -39,8 +38,9 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json({ url: session.url });
   } catch (error: any) {
+    console.log(error.message);
     return NextResponse.json(
-      { error: "Internal server error" },
+      { error: `Internal server error ` },
       { status: 500 }
     );
   }

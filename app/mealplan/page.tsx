@@ -6,7 +6,6 @@ import {
   MealPlanInput,
   MealPlanResponse,
   DailyMealPlan,
-  daysOfTheWeek,
 } from "@/types/mealplan";
 import { useMutation } from "@tanstack/react-query";
 import React from "react";

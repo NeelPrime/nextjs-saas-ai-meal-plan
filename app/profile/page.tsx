@@ -31,38 +31,32 @@ export default function Profile() {
     staleTime: 5 * 60 * 1000,
   });
 
-  const {
-    data: updatedPlan,
-    mutate: updatePlanMutation,
-    isPending: isUpdatePlanPending,
-  } = useMutation({
-    mutationFn: updatePlan,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["subscription"] });
-      toast.success("Subscription plan updated successfully.");
-    },
-    onError: () => {
-      toast.error("Error occurred while updating plan");
-    },
-  });
+  const { mutate: updatePlanMutation, isPending: isUpdatePlanPending } =
+    useMutation({
+      mutationFn: updatePlan,
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["subscription"] });
+        toast.success("Subscription plan updated successfully.");
+      },
+      onError: () => {
+        toast.error("Error occurred while updating plan");
+      },
+    });
   const currentPlan = availablePlans.find(
     (plan) => plan.interval === subscription?.subscription?.subscriptionTier
   );
 
-  const {
-    data: canceledPlan,
-    mutate: unsubscribeMutation,
-    isPending: isUnsubscribePending,
-  } = useMutation({
-    mutationFn: unsubscribe,
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["subscription"] });
-      router.push("/subscribe");
-    },
-    onError: () => {
-      toast.error("Unable to unsubscribe");
-    },
-  });
+  const { mutate: unsubscribeMutation, isPending: isUnsubscribePending } =
+    useMutation({
+      mutationFn: unsubscribe,
+      onSuccess: () => {
+        queryClient.invalidateQueries({ queryKey: ["subscription"] });
+        router.push("/subscribe");
+      },
+      onError: () => {
+        toast.error("Unable to unsubscribe");
+      },
+    });
 
   const handleChangePlan = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const newPlan = event.target.value;

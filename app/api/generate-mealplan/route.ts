@@ -1,4 +1,4 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import OpenAI from "openai";
 
 const openAI = new OpenAI({
@@ -91,6 +91,7 @@ export async function POST(request: Request) {
 
     return NextResponse.json({ mealPlan: parsedMealPlan });
   } catch (error: any) {
+    console.log(error.message);
     return NextResponse.json(
       { error: "Internal server error." },
       { status: 500 }
