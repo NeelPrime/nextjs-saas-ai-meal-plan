@@ -28,3 +28,10 @@ body {
 .cl-footer > div:last-child {
   display: none !important;
 }
+
+
+@media (max-width: 518px) {
+  .hide-on-mobile {
+    display: none;
+  }
+}

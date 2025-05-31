@@ -12,16 +12,21 @@ export default function NavBar() {
     <nav className="fixed top-0 left-0 w-full bg-white shadow-sm z-50">
       <div className="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between">
         {/* Brand / Logo */}
-        <Link href="/">
-          <Image
-            className="text-xl font-bold text-cyan-700 cursor-pointer"
-            src="/logo.png" // Ensure this path is correct or replace with your logo path
-            width={60}
-            height={60}
-            alt="Logo"
-          />
-        </Link>
 
+        <div className="flex items-center space-x-2">
+          <Link href="/" className="flex items-center space-x-2">
+            <Image
+              className="cursor-pointer"
+              src="/logo.png"
+              width={60}
+              height={60}
+              alt="Logo"
+            />
+            <span className="text-2xl font-semibold bg-gradient-to-r from-emerald-600 to-cyan-600 bg-clip-text text-transparent hide-on-mobile">
+              NutriPlan AI
+            </span>
+          </Link>
+        </div>
         {/* Navigation Links */}
         <div className="space-x-6 flex items-center">
           {/* Authentication Buttons */}
